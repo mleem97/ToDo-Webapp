@@ -1,5 +1,6 @@
 /* Stilisiere das gesamte Dokument */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Permanent+Marker&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Permanent+Marker&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
 * {
   margin: 0;
   padding: 0;
@@ -27,7 +28,7 @@ body {
 }
 
 input[type="text"] {
-  width: calc(100% - 2rem);
+  width: calc(80% - 2rem);
   padding: 0.5rem;
   border-radius: 4px;
   border: 1px solid #ddd;
@@ -35,16 +36,21 @@ input[type="text"] {
 }
 
 button {
-  background-color: #2f3237;
+  width: calc(20% - 1rem);
+  padding-top: 3px;
+  padding-bottom: 6px;
+  background-color: #3f51b5;
   color: white;
-  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-style: bolder;
+  font-weight: 900;
+  font-size: 1rem;
 }
 
 button:hover {
-  background-color: #5e636e;
+  background-color: #303f9f;
 }
 
 ul {
@@ -53,11 +59,11 @@ ul {
 }
 
 li {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #bdbdbd;
   padding: 0.5rem 0;
 }
 

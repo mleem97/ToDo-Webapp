@@ -9,15 +9,13 @@ class TodoList {
   renderTodos() {
     this.todoList.innerHTML = this.todos
       .map(
-        ({ id, text, isNew }) => `
-          <li>
-            <span style="${isNew ? "color:red;" : ""}">${text}</span>
-            <i class="mdi mdi-delete" data-id="${id}"></i>
-          </li>
-        `
+        ({ id, text, isNew }) => `<li><span style="${isNew ? "color:red;" : ""}">${text}</span><button class="mdi mdi-delete" data-id="${id}"></button></li>`
       )
       .join("");
+    this.addDeleteButtonListeners();
+  }
 
+  addDeleteButtonListeners() {
     const deleteButtons = this.todoList.querySelectorAll(".mdi-delete");
     deleteButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -48,7 +46,6 @@ class TodoList {
 
   removeTodo(id) {
     this.todos = this.todos.filter((todo) => todo.id !== parseInt(id));
-    localStorage.removeItem(id);
     this.saveTodos();
     this.renderTodos();
   }
