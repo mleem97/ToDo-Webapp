@@ -1,7 +1,7 @@
 class TodoList {
   constructor() {
-    this.newTodoInput = document.getElementById("new-todo");
-    this.addBtn = document.getElementById("add-btn");
+    this.todoInput = document.getElementById("new-todo");
+    this.addButton = document.getElementById("add-btn");
     this.todoList = document.getElementById("todo-list");
     this.todos = JSON.parse(localStorage.getItem("todos")) || [];
   }
@@ -9,20 +9,20 @@ class TodoList {
   renderTodos() {
     this.todoList.innerHTML = this.todos
       .map(
-        ({ id, text, isNew }) => `<li><span style="${isNew ? "color:red;" : ""}">${text}</span><button class="mdi mdi-delete" data-id="${id}"></button></li>`
+        ({ id, text, isNew }) => `
+        <li>
+          <span style="${isNew ? "color:red;" : ""}">${text}</span>
+          <button class="mdi mdi-delete" data-id="${id}"></button>
+        </li>
+      `
       )
       .join("");
-    this.addDeleteButtonListeners();
-  }
 
-  addDeleteButtonListeners() {
-    const deleteButtons = this.todoList.querySelectorAll(".mdi-delete");
-    deleteButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const id = button.dataset.id;
-        this.removeTodo(id);
-      });
-    });
+    this.todoList
+      .querySelectorAll(".mdi-delete")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => this.removeTodo(btn.dataset.id))
+      );
   }
 
   saveTodos() {
@@ -30,18 +30,13 @@ class TodoList {
   }
 
   addTodo() {
-    const todoText = this.newTodoInput.value.trim();
-    if (todoText !== "") {
-      const newTodo = {
-        id: Date.now(),
-        text: todoText,
-        isNew: true,
-      };
-      this.todos.push(newTodo);
-      this.saveTodos();
-      this.renderTodos();
-      this.newTodoInput.value = "";
-    }
+    const text = this.todoInput.value.trim();
+    if (!text) return;
+
+    this.todos.push({ id: Date.now(), text, isNew: true });
+    this.saveTodos();
+    this.renderTodos();
+    this.todoInput.value = "";
   }
 
   removeTodo(id) {
@@ -51,24 +46,17 @@ class TodoList {
   }
 
   init() {
-    this.addBtn.addEventListener("click", this.addTodo.bind(this));
-    this.newTodoInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        this.addTodo();
-      }
+    this.addButton.addEventListener("click", () => this.addTodo());
+    this.todoInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") this.addTodo();
     });
     window.addEventListener("storage", () => {
       this.todos = JSON.parse(localStorage.getItem("todos")) || [];
       this.renderTodos();
     });
+
     this.renderTodos();
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const app = document.getElementById("app");
-  app.style.userSelect = "none";
-
-  const todoList = new TodoList();
-  todoList.init();
-});
+document.addEventListener("DOMContentLoaded", () => new TodoList().init());
