@@ -26,6 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       todoList.appendChild(li);
     });
+  
+    const deleteButtons = todoList.querySelectorAll(".mdi-delete");
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.id;
+        removeTodo(id);
+      });
+    });
   }
 
   function saveTodos() {
@@ -46,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function removeTodo(id) {
-    todos = todos.filter((todo) => todo.id !== id);
+    todos = todos.filter((todo) => todo.id !== parseInt(id));
     localStorage.removeItem(id);
     saveTodos();
     renderTodos();

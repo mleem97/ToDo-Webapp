@@ -1,5 +1,4 @@
 /* Stilisiere das gesamte Dokument */
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Permanent+Marker&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 * {
   margin: 0;
@@ -9,7 +8,7 @@
 
 body {
   font-family: "Roboto", sans-serif;
-  background-color: darkgrey;
+  background-color: #212121;
   display: flex;
   justify-content: center;
   align-items: top;
@@ -19,11 +18,12 @@ body {
 }
 
 #app {
-  background-color: #fff;
+  background-color: #5e636e;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 300px;
+  max-height: 100vh;
   text-align: center;
 }
 
@@ -36,7 +36,7 @@ input[type="text"] {
 }
 
 button {
-  background-color: #333;
+  background-color: #2f3237;
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -45,7 +45,7 @@ button {
 }
 
 button:hover {
-  background-color: #283593;
+  background-color: #5e636e;
 }
 
 ul {
