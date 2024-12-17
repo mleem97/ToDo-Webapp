@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo-Liste</title>
+    <!-- Verknüpft die externe CSS-Datei für das Layout -->
     <link rel="stylesheet" href="/src/style.css" />
+    <!-- Lädt das Skript für die App -->
     <script defer src="/src/app.js"></script>
+    <!-- Externe Icon-Bibliothek für Symbole -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
@@ -13,11 +16,14 @@
   </head>
   <body>
     <div id="todo-div">
+      <!-- Überschrift der App -->
       <h1>Todo-Liste</h1>
+      <!-- Eingabefeld und Button für neue Aufgaben -->
       <div class="input-container">
         <input type="text" id="new-todo" placeholder="Neue Aufgabe" />
         <button id="add-btn" class="mdi mdi-plus"></button>
       </div>
+      <!-- Liste, in der die Aufgaben angezeigt werden -->
       <ul id="todo-list"></ul>
     </div>
   </body>

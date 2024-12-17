@@ -1,11 +1,14 @@
+/* Importiert Google Fonts für Text und Überschrift */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
 
+/* Basis-Reset für Abstände und Box-Modell */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Zentriert den App-Container */
 body {
   background-color: #212121;
   display: flex;
@@ -15,6 +18,7 @@ body {
   font-family: "Inter", sans-serif;
 }
 
+/* Stilisiert den Hauptcontainer der App */
 #todo-div {
   background-color: #5e636e;
   padding: 2rem;
@@ -24,18 +28,21 @@ body {
   text-align: center;
 }
 
+/* Stellt das Eingabefeld und den Button in einer Reihe dar */
 .input-container {
   display: flex;
   margin-bottom: 1rem;
 }
 
+/* Stil für das Eingabefeld */
 input[type="text"] {
-  flex: 1;
+  flex: 1; /* Passt sich der verfügbaren Breite an */
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px 0 0 4px;
 }
 
+/* Stil für den "Hinzufügen"-Button */
 button {
   padding: 0.5rem;
   background-color: #3f51b5;
@@ -47,14 +54,16 @@ button {
 }
 
 button:hover {
-  background-color: #303f9f;
+  background-color: #303f9f; /* Hover-Effekt */
 }
 
+/* Entfernt Standard-Stil von Listen */
 ul {
   list-style: none;
   padding: 0;
 }
 
+/* Stil für einzelne Aufgaben in der Liste */
 li {
   display: flex;
   justify-content: space-between;
@@ -63,23 +72,26 @@ li {
   padding: 0.5rem 0;
 }
 
+/* Text der Aufgabe */
 li span {
   flex: 1;
   text-align: left;
 }
 
+/* Stil für den Löschen-Button in der Liste */
 li button {
   background: none;
   border: none;
   cursor: pointer;
-  color: #ff5252;
+  color: #ff5252; /* Rote Farbe für "Löschen"-Button */
   font-size: 1.2rem;
 }
 
 li button:hover {
-  opacity: 0.8;
+  opacity: 0.8; /* Hover-Effekt für Löschen */
 }
 
+/* Überschrift-Stil */
 h1 {
   color: #fff;
   margin-bottom: 1rem;
