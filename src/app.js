@@ -1,92 +1,77 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const newTodoInput = document.getElementById("new-todo");
-  const addBtn = document.getElementById("add-btn");
-  const todoList = document.getElementById("todo-list");
-  let todos = JSON.parse(localStorage.getItem("todos")) || [];
+class TodoList {
+  constructor() {
+    this.newTodoInput = document.getElementById("new-todo");
+    this.addBtn = document.getElementById("add-btn");
+    this.todoList = document.getElementById("todo-list");
+    this.todos = JSON.parse(localStorage.getItem("todos")) || [];
+  }
 
-  function renderTodos() {
-    todoList.innerHTML = "";
-    todos.forEach((todo) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-                <span style="${todo.isNew ? "color:red;" : ""}">${
-        todo.text
-      }</span>
-                <i class="mdi mdi-delete" data-id="${todo.id}"></i>
-            `;
-      if (todo.isNew) {
-        setTimeout(() => {
-          const span = li.querySelector("span");
-          const i = li.querySelector("i");
-          span.style.color = "";
-          i.style.color = "";
-          todo.isNew = false;
-          saveTodos();
-        }, 3000);
-      }
-      todoList.appendChild(li);
-    });
-  
-    const deleteButtons = todoList.querySelectorAll(".mdi-delete");
+  renderTodos() {
+    this.todoList.innerHTML = this.todos
+      .map(
+        ({ id, text, isNew }) => `
+          <li>
+            <span style="${isNew ? "color:red;" : ""}">${text}</span>
+            <i class="mdi mdi-delete" data-id="${id}"></i>
+          </li>
+        `
+      )
+      .join("");
+
+    const deleteButtons = this.todoList.querySelectorAll(".mdi-delete");
     deleteButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const id = button.dataset.id;
-        removeTodo(id);
+        this.removeTodo(id);
       });
     });
   }
 
-  function saveTodos() {
-    localStorage.setItem("todos", JSON.stringify(todos));
+  saveTodos() {
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
-  function addTodo(todoText) {
-    if (todoText.trim() === "") return;
-    const newTodo = {
-      id: Date.now(),
-      text: todoText,
-      isNew: true,
-    };
-    todos.push(newTodo);
-    saveTodos();
-    renderTodos();
-    newTodoInput.value = "";
-  }
-
-  function removeTodo(id) {
-    todos = todos.filter((todo) => todo.id !== parseInt(id));
-    localStorage.removeItem(id);
-    saveTodos();
-    renderTodos();
-  }
-
-  addBtn.addEventListener("click", () => {
-    const todoText = newTodoInput.value.trim();
-    addTodo(todoText);
-  });
-
-  newTodoInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const todoText = newTodoInput.value.trim();
-      addTodo(todoText);
+  addTodo() {
+    const todoText = this.newTodoInput.value.trim();
+    if (todoText !== "") {
+      const newTodo = {
+        id: Date.now(),
+        text: todoText,
+        isNew: true,
+      };
+      this.todos.push(newTodo);
+      this.saveTodos();
+      this.renderTodos();
+      this.newTodoInput.value = "";
     }
-  });
+  }
 
-  window.addEventListener("storage", () => {
-    todos = JSON.parse(localStorage.getItem("todos")) || [];
-    renderTodos();
-  });
+  removeTodo(id) {
+    this.todos = this.todos.filter((todo) => todo.id !== parseInt(id));
+    localStorage.removeItem(id);
+    this.saveTodos();
+    this.renderTodos();
+  }
 
+  init() {
+    this.addBtn.addEventListener("click", this.addTodo.bind(this));
+    this.newTodoInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        this.addTodo();
+      }
+    });
+    window.addEventListener("storage", () => {
+      this.todos = JSON.parse(localStorage.getItem("todos")) || [];
+      this.renderTodos();
+    });
+    this.renderTodos();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
   app.style.userSelect = "none";
 
-  const deleteButtons = todoList.querySelectorAll(".mdi-delete");
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const id = button.dataset.id;
-      removeTodo(id);
-    });
-  });
-
-  renderTodos();
+  const todoList = new TodoList();
+  todoList.init();
 });
