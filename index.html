@@ -1,30 +1,77 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Todo-Liste</title>
-    <!-- Verknüpft die externe CSS-Datei für das Layout -->
-    <link rel="stylesheet" href="/src/style.css" />
-    <!-- Lädt das Skript für die App -->
-    <script defer src="/src/app.js"></script>
-    <!-- Externe Icon-Bibliothek für Symbole -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
-    />
+    <title>Mein Dashboard</title>
   </head>
   <body>
-    <div id="todo-div">
-      <!-- Überschrift der App -->
-      <h1>Todo-Liste</h1>
-      <!-- Eingabefeld und Button für neue Aufgaben -->
-      <div class="input-container">
-        <input type="text" id="new-todo" placeholder="Neue Aufgabe" />
-        <button id="add-btn" class="mdi mdi-plus"></button>
+    <div id="app">
+      <nav class="navbar">
+        <h1>Dashboard</h1>
+        <button id="settingsBtn">Einstellungen</button>
+      </nav>
+
+      <div class="dashboard-grid">
+        <div class="widget" id="links-widget">
+          <h2>Quick Links</h2>
+          <div id="links-list"></div>
+        </div>
+
+        <div class="widget" id="todo-widget">
+          <h2>Todo Liste</h2>
+          <div class="todo-input">
+            <input type="text" id="todoInput" placeholder="Add new task" />
+            <button id="addTodoBtn">+</button>
+          </div>
+          <ul id="todoList"></ul>
+        </div>
+
+        <div class="widget" id="weather-widget">
+          <h2>Wetter</h2>
+          <div id="weather-info">
+            <p>Lade Wetter...</p>
+          </div>
+        </div>
+
+        <div class="widget" id="calendar-widget">
+          <h2>Was geht heut?</h2>
+          <div id="calendar"></div>
+        </div>
       </div>
-      <!-- Liste, in der die Aufgaben angezeigt werden -->
-      <ul id="todo-list"></ul>
+
+      <div id="settings-modal" class="modal">
+        <div class="modal-content">
+          <h2>Einstellungen</h2>
+          <div class="links-settings">
+            <h3>Quick Links adden</h3>
+            <div class="link-input">
+              <input type="text" id="linkName" placeholder="Link Name" />
+              <input type="url" id="linkUrl" placeholder="Link URL" />
+              <button id="addLinkBtn">+ Link</button>
+            </div>
+            <div id="links-settings-list"></div>
+          </div>
+          <div class="calendar-settings">
+            <h3>Google Calendar Integration</h3>
+            <div class="calendar-input">
+              <input
+                type="url"
+                id="calendarUrl"
+                placeholder="Google Calendar URL"
+              />
+              <button
+                onclick="window.setCalendarUrl(document.getElementById('calendarUrl').value)"
+              >
+                Connect Calendar (WIP)
+              </button>
+            </div>
+          </div>
+          <button id="closeSettingsBtn">Wech damit</button>
+        </div>
+      </div>
     </div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
