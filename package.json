@@ -1,5 +1,5 @@
 {
-  "name": "todo-webapp",
+  "name": "vite-starter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,6 +9,6 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.0.1"
+    "vite": "^5.4.2"
   }
 }
