@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v1.2.3
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Create GitHub release
+        run: gh release view "$RELEASE_TAG" || gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --generate-notes
+
+  node-release:
+    name: Node release assets
+    needs: create-release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' lock; do (cd "$(dirname "$lock")" && pnpm install --frozen-lockfile); done < <(find . -type f -name pnpm-lock.yaml -not -path '*/node_modules/*' -print0)
+          while IFS= read -r -d '' manifest; do
+            if node -e 'const p=require(process.argv[1]);process.exit(p.scripts&&p.scripts.build?0:1)' "$manifest"; then (cd "$(dirname "$manifest")" && pnpm run build); fi
+          done < <(find . -type f -name package.json -not -path '*/node_modules/*' -print0)
+      - name: Package and upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-staging
+          while IFS= read -r -d '' output; do
+            safe="$(printf '%s' "$output" | sed 's#^\./##;s#[/.]#-#g')"
+            tar -czf "release-staging/${safe}.tar.gz" "$output"
+          done < <(find . -type d \( -name dist -o -name build -o -name out -o -path '*/.next/standalone' \) -not -path '*/node_modules/*' -print0)
+          shopt -s nullglob
+          assets=(release-staging/*)
+          if (( ${#assets[@]} )); then gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber; else echo 'No Node release output found.'; fi
+

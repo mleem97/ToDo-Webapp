@@ -1,0 +1,63 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "11 2 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/dependency-review-action@v5
+        continue-on-error: ${{ github.event.repository.visibility != 'public' }}
+        with:
+          fail-on-severity: moderate
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: "javascript-typescript"
+      - uses: github/codeql-action/autobuild@v4
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
+
+  native-audits:
+    name: Native dependency audits
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: pnpm audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' lock; do
+            root="$(dirname "$lock")"
+            (cd "$root" && pnpm audit --audit-level moderate)
+            if pnpm audit --help | grep -q signatures; then (cd "$root" && pnpm audit signatures); fi
+          done < <(find . -type f -name pnpm-lock.yaml -not -path '*/node_modules/*' -print0)

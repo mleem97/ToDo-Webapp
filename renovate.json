@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "minimumReleaseAge": "7 days",
+  "dependencyDashboard": true,
+  "rangeStrategy": "replace",
+  "labels": ["dependencies", "automated"],
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "groupName": "Node dependencies",
+      "minimumReleaseAge": "7 days",
+      "rangeStrategy": "replace"
+    },
+    {
+      "matchManagers": ["nuget"],
+      "groupName": "NuGet dependencies",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "pinDigests": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "Development dependencies"
+    }
+  ]
+}

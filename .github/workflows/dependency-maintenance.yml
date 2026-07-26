@@ -1,0 +1,74 @@
+name: Dependency Maintenance
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Update mode
+        required: true
+        default: semver-safe
+        type: choice
+        options: [semver-safe, patch, minor, latest]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependency-maintenance
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ secrets.DEP_UPGRADER_TOKEN || github.token }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Update dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mode="${{ inputs.mode || 'semver-safe' }}"
+          bash .github/scripts/dep-upgrader.sh \
+            --root . \
+            --non-interactive \
+            --module deps \
+            --mode "$mode" \
+            --audit report \
+            --harden strict \
+            --yes \
+            --keep-going
+          rm -rf .maintenance
+      - name: Create pull request
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No dependency changes."
+            exit 0
+          fi
+          branch="automation/dependency-maintenance-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git commit -m "chore(deps): automated dependency maintenance"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --set-upstream origin "$branch"
+          gh pr create \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$branch" \
+            --title "chore(deps): automated dependency maintenance" \
+            --body $'Automated dependency maintenance by dep-upgrader.\n\n- Seven-day package cooldown enforced\n- npm workspaces migrated to pnpm where applicable\n- Native audits executed during the update run\n\nReview CI results before merging.' || true

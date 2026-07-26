@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "dev", "develop"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    name: Node / pnpm
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=0
+          while IFS= read -r -d '' lock; do
+            found=1
+            root="$(dirname "$lock")"
+            (cd "$root" && pnpm install --frozen-lockfile)
+          done < <(find . -type f -name pnpm-lock.yaml -not -path '*/node_modules/*' -print0)
+          if [ "$found" -eq 0 ]; then pnpm install --no-frozen-lockfile; fi
+      - name: Lint, typecheck, test and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' manifest; do
+            dir="$(dirname "$manifest")"
+            for script in lint format:check typecheck test build; do
+              if node -e 'const p=require(process.argv[1]);process.exit(p.scripts&&p.scripts[process.argv[2]]?0:1)' "$manifest" "$script"; then
+                (cd "$dir" && pnpm run "$script")
+              fi
+            done
+          done < <(find . -type f -name package.json -not -path '*/node_modules/*' -not -path '*/.next/*' -print0)

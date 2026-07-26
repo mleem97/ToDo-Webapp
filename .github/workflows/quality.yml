@@ -1,0 +1,55 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "43 4 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node-quality:
+    name: Node quality analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: Install
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' lock; do (cd "$(dirname "$lock")" && pnpm install --frozen-lockfile); done < <(find . -type f -name pnpm-lock.yaml -not -path '*/node_modules/*' -print0)
+      - name: Syncpack
+        run: pnpm dlx syncpack@latest lint
+      - name: Knip
+        continue-on-error: true
+        run: pnpm dlx knip@latest --reporter compact
+      - name: Dependency Cruiser
+        continue-on-error: true
+        run: pnpm dlx dependency-cruiser@latest --no-config --output-type err --exclude '(^|/)node_modules(/|$)' .
+      - name: Duplicate code
+        continue-on-error: true
+        run: pnpm dlx jscpd@latest --min-lines 10 --min-tokens 70 --reporters console .
+      - name: Package validation
+        continue-on-error: true
+        shell: bash
+        run: |
+          while IFS= read -r -d '' manifest; do
+            if node -e 'const p=require(process.argv[1]);process.exit(p.private===false||(!p.private&&p.name)?0:1)' "$manifest"; then
+              dir="$(dirname "$manifest")"
+              pnpm dlx publint@latest "$dir" || true
+              pnpm dlx @arethetypeswrong/cli@latest --pack "$dir" || true
+            fi
+          done < <(find . -type f -name package.json -not -path '*/node_modules/*' -print0)
